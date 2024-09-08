@@ -7,6 +7,7 @@
   <style>
     body {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
@@ -16,14 +17,22 @@
     canvas {
       background-color: #000;
     }
+    #resetButton {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      display: none;
+    }
   </style>
 </head>
 <body>
   <canvas id="gameCanvas" width="400" height="400"></canvas>
+  <button id="resetButton">Reset Game</button>
 
   <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+    const resetButton = document.getElementById('resetButton');
 
     const grid = 20;
     let snake = [{x: 160, y: 160}, {x: 140, y: 160}, {x: 120, y: 160}];
@@ -32,6 +41,7 @@
     let gameOver = false;
 
     document.addEventListener('keydown', changeDirection);
+    resetButton.addEventListener('click', resetGame);
 
     function changeDirection(event) {
       const keyPressed = event.keyCode;
@@ -40,16 +50,16 @@
       const goingRight = direction.x === grid;
       const goingLeft = direction.x === -grid;
 
-      if (keyPressed === 37 && !goingRight) {
+      if ((keyPressed === 37 || keyPressed === 65) && !goingRight) { // Left Arrow or 'A'
         direction = {x: -grid, y: 0};
       }
-      if (keyPressed === 38 && !goingDown) {
+      if ((keyPressed === 38 || keyPressed === 87) && !goingDown) { // Up Arrow or 'W'
         direction = {x: 0, y: -grid};
       }
-      if (keyPressed === 39 && !goingLeft) {
+      if ((keyPressed === 39 || keyPressed === 68) && !goingLeft) { // Right Arrow or 'D'
         direction = {x: grid, y: 0};
       }
-      if (keyPressed === 40 && !goingUp) {
+      if ((keyPressed === 40 || keyPressed === 83) && !goingUp) { // Down Arrow or 'S'
         direction = {x: 0, y: grid};
       }
     }
@@ -69,6 +79,7 @@
 
       if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height || collision(head)) {
         gameOver = true;
+        resetButton.style.display = 'block';  // Show reset button when game over
       }
     }
 
@@ -105,7 +116,16 @@
       }
     }
 
-    gameLoop();
+    function resetGame() {
+      snake = [{x: 160, y: 160}, {x: 140, y: 160}, {x: 120, y: 160}];
+      direction = {x: 20, y: 0};
+      food = {x: Math.floor((Math.random() * 19)) * grid, y: Math.floor((Math.random() * 19)) * grid};
+      gameOver = false;
+      resetButton.style.display = 'none';
+      gameLoop(); // Restart the game loop
+    }
+
+    gameLoop(); // Start the game loop
   </script>
 </body>
 </html>
