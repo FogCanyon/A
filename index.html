@@ -46,15 +46,23 @@
     let foods = []; // Array to hold multiple food positions
     let gameOver = false; // Game over state
 
-    // Function to generate random food positions
+    // Function to generate random food positions ensuring the food doesn't overlap with the snake
     function generateFoods() {
       foods = [];
-      for (let i = 0; i < foodCount; i++) {
-        foods.push({
+      while (foods.length < foodCount) {
+        const food = {
           x: Math.floor((Math.random() * 19)) * grid,
           y: Math.floor((Math.random() * 19)) * grid
-        });
+        };
+        if (!isFoodOnSnake(food)) {
+          foods.push(food); // Only add the food if it's not on the snake
+        }
       }
+    }
+
+    // Check if the food is on the snake
+    function isFoodOnSnake(food) {
+      return snake.some(segment => segment.x === food.x && segment.y === food.y);
     }
 
     document.addEventListener('keydown', changeDirection);
@@ -94,19 +102,20 @@
       const head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
 
       // Check if the snake eats any food
+      let ateFood = false;
       for (let i = 0; i < foods.length; i++) {
         if (head.x === foods[i].x && head.y === foods[i].y) {
           foods.splice(i, 1); // Remove the eaten food
-          foods.push({
-            x: Math.floor((Math.random() * 19)) * grid,
-            y: Math.floor((Math.random() * 19)) * grid
-          }); // Generate new food in a random location
+          foods.push(generateValidFood()); // Generate a new food item
+          ateFood = true; // Mark that the snake ate food
           break;
         }
       }
 
-      // If no food is eaten, remove the last part of the snake
-      //snake.pop();
+      // If food is eaten, don't remove the last part of the snake (so it grows)
+      if (!ateFood) {
+        snake.pop(); // Remove the last part of the snake if no food is eaten
+      }
 
       // Add the new head to the front of the snake
       snake.unshift(head);
@@ -124,6 +133,18 @@
         if (head.x === snake[i].x && head.y === snake[i].y) return true; // If head overlaps body, it's a collision
       }
       return false;
+    }
+
+    // Generate a valid food position that doesn't overlap with the snake
+    function generateValidFood() {
+      let food;
+      do {
+        food = {
+          x: Math.floor((Math.random() * 19)) * grid,
+          y: Math.floor((Math.random() * 19)) * grid
+        };
+      } while (isFoodOnSnake(food)); // Keep generating food until it's not on the snake
+      return food;
     }
 
     // Function to calculate the color based on the index of the segment
