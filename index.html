@@ -26,16 +26,9 @@
       font-size: 16px;
       display: none; /* Hidden until game over */
     }
-    /* Score display style */
-    #score {
-      font-size: 24px;
-      margin-bottom: 10px;
-    }
   </style>
 </head>
 <body>
-  <!-- Score display -->
-  <div id="score">Score: 0</div>
   <!-- The canvas where the game will be drawn -->
   <canvas id="gameCanvas" width="400" height="400"></canvas>
   <!-- Reset button to restart the game after game over -->
@@ -45,14 +38,12 @@
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     const resetButton = document.getElementById('resetButton');
-    const scoreDisplay = document.getElementById('score');
 
     const grid = 20; // Grid size, controlling the movement and size of elements
     const foodCount = 5; // Number of food items on the screen
     let snake = [{x: 160, y: 160}, {x: 140, y: 160}, {x: 120, y: 160}]; // Initial snake position
     let direction = {x: 20, y: 0}; // Initial movement direction (moving right)
     let foods = []; // Array to hold multiple food positions
-    let score = 0; // Track how many foods the snake has eaten
     let gameOver = false; // Game over state
 
     // Function to generate random food positions ensuring the food doesn't overlap with the snake
@@ -117,8 +108,6 @@
           foods.splice(i, 1); // Remove the eaten food
           foods.push(generateValidFood()); // Generate a new food item
           ateFood = true; // Mark that the snake ate food
-          score++; // Increment the score
-          updateScore(); // Update the score display
           break;
         }
       }
@@ -156,11 +145,6 @@
         };
       } while (isFoodOnSnake(food)); // Keep generating food until it's not on the snake
       return food;
-    }
-
-    // Update the score display on the screen
-    function updateScore() {
-      scoreDisplay.innerText = `Score: ${score}`;
     }
 
     // Function to calculate the color based on the index of the segment
@@ -208,4 +192,16 @@
 
     // Reset the game state to initial values and start a new game
     function resetGame() {
-      snake = [{x: 160, y: 160}, {x: 140, y: 160}, {x: 120, y: 160}]; //
+      snake = [{x: 160, y: 160}, {x: 140, y: 160}, {x: 120, y: 160}]; // Reset the snake to its starting position
+      direction = {x: 20, y: 0}; // Reset direction (moving right)
+      generateFoods(); // Generate multiple food locations
+      gameOver = false; // Reset game over state
+      resetButton.style.display = 'none'; // Hide the reset button
+      gameLoop(); // Start the game loop again
+    }
+
+    generateFoods(); // Generate initial food positions
+    gameLoop(); // Start the initial game loop
+  </script>
+</body>
+</html>
