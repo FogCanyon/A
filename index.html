@@ -1,117 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us - PRT Automation OÜ</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background: #333; /* Fallback color */
-            color: #fff;
-            position: relative;
-            z-index: 0;
-        }
-
-        /* Adding the background image with opacity */
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('background.jpg') no-repeat center center fixed;
-            background-size: cover;
-            opacity: 0.3; /* Adjust the opacity here (0.0 to 1.0) */
-            z-index: -1;
-        }
-
-        .container {
-            width: 80%;
-            margin: auto;
-            overflow: hidden;
-            padding: 20px;
-            background-color: rgba(0, 0, 0, 0.7);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            position: relative;
-            z-index: 1;
-        }
-
-        h1 {
-            color: #f4f4f4;
-        }
-
-        h2 {
-            color: #ddd;
-        }
-
-        p, ul {
-            margin-bottom: 20px;
-        }
-
-        ul {
-            list-style-type: square;
-            margin-left: 20px;
-        }
-
-        .video-section {
-            margin-top: 30px;
-        }
-
-        .video-section a {
-            color: #337ab7;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .video-section a:hover {
-            text-decoration: underline;
-        }
-
-        footer {
-            text-align: center;
-            padding: 10px 0;
-            background-color: #222;
-            color: #fff;
-            margin-top: 30px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snake Game</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    canvas {
+      background-color: #000;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>About Us</h1>
-        <p>We are a small company based in Tartu, consisting of 3 automation engineers and a part-time full stack programmer. Our experience is mainly in the Scandinavian and Baltic countries, with a strong focus on the wood industry, which makes up 90% of our work.</p>
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
 
-        <h2>Our Team</h2>
-        <p>Two of our automation engineers are young talents whom I've personally trained over the last 2-3 years.</p>
-        <p><strong>My Background:</strong></p>
-        <ul>
-            <li>7-8 years at Hekotek during and after my time at TalTech University.</li>
-            <li>15 years running my own company, PRT Automation OÜ.</li>
-        </ul>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
 
-        <h2>Our Clients</h2>
-        <p>Our clients primarily include:</p>
-        <ul>
-            <li>Sawmills in Estonia and Latvia (Nordwood sawmills, Stora Enso sawmills, Vara sawmill). We are actively involved in 6-7 sawmills.</li>
-            <li>Wood planing companies (Raitwood, Puidukoda).</li>
-            <li>Machine builders (local companies such as ValonKone, Rosens, etc).</li>
-            <li>Subcontracting projects in the energy industry (CGI, Diotech).</li>
-        </ul>
+    const grid = 20;
+    let snake = [{x: 160, y: 160}, {x: 140, y: 160}, {x: 120, y: 160}];
+    let direction = {x: 20, y: 0};
+    let food = {x: Math.floor((Math.random() * 19)) * grid, y: Math.floor((Math.random() * 19)) * grid};
+    let gameOver = false;
 
-        <div class="video-section">
-            <h2>Our Work</h2>
-            <p>Here you can see some videos of our visualization projects that give an overview of what we have done:</p>
-            <p><a href="https://vimeo.com/showcase/2253135" target="_blank">Watch our project showcase on Vimeo</a></p>
-        </div>
-    </div>
+    document.addEventListener('keydown', changeDirection);
 
-    <footer>
-        <p>&copy; 2024 PRT Automation OÜ. All rights reserved.</p>
-    </footer>
+    function changeDirection(event) {
+      const keyPressed = event.keyCode;
+      const goingUp = direction.y === -grid;
+      const goingDown = direction.y === grid;
+      const goingRight = direction.x === grid;
+      const goingLeft = direction.x === -grid;
+
+      if (keyPressed === 37 && !goingRight) {
+        direction = {x: -grid, y: 0};
+      }
+      if (keyPressed === 38 && !goingDown) {
+        direction = {x: 0, y: -grid};
+      }
+      if (keyPressed === 39 && !goingLeft) {
+        direction = {x: grid, y: 0};
+      }
+      if (keyPressed === 40 && !goingUp) {
+        direction = {x: 0, y: grid};
+      }
+    }
+
+    function update() {
+      if (gameOver) return;
+
+      const head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
+
+      if (head.x === food.x && head.y === food.y) {
+        food = {x: Math.floor((Math.random() * 19)) * grid, y: Math.floor((Math.random() * 19)) * grid};
+      } else {
+        snake.pop();
+      }
+
+      snake.unshift(head);
+
+      if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height || collision(head)) {
+        gameOver = true;
+      }
+    }
+
+    function collision(head) {
+      for (let i = 1; i < snake.length; i++) {
+        if (head.x === snake[i].x && head.y === snake[i].y) return true;
+      }
+      return false;
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      snake.forEach((segment) => {
+        ctx.fillStyle = 'green';
+        ctx.fillRect(segment.x, segment.y, grid, grid);
+      });
+
+      ctx.fillStyle = 'red';
+      ctx.fillRect(food.x, food.y, grid, grid);
+
+      if (gameOver) {
+        ctx.fillStyle = 'white';
+        ctx.font = '40px Arial';
+        ctx.fillText('Game Over', canvas.width / 4, canvas.height / 2);
+      }
+    }
+
+    function gameLoop() {
+      update();
+      draw();
+      if (!gameOver) {
+        setTimeout(gameLoop, 100);
+      }
+    }
+
+    gameLoop();
+  </script>
 </body>
 </html>
